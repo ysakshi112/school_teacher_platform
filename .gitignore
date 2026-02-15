@@ -7,8 +7,10 @@ backend/node_modules/
 .env
 .env.local
 .env.production
-my-app/.env.local
-backend/.env
+.env.test
+my-app/.env*
+backend/.env*
+**/.env*
 
 # Build outputs
 my-app/.next/

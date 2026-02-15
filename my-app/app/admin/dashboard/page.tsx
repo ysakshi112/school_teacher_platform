@@ -14,46 +14,77 @@ import { useRouter } from "next/navigation";
 export default function AdminDashboard() {
   const router = useRouter();
   const [users, setUsers] = useState<any[]>([]);
+  const [token, setToken] = useState<string | null>(null);
 
-  const authHeader = {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  };
-
+  /* ---------------- LOAD TOKEN SAFELY ---------------- */
   useEffect(() => {
-    fetchPendingUsers();
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) {
+      router.push("/login");
+      return;
+    }
+    setToken(storedToken);
   }, []);
 
-  /* ---------------- FETCH ---------------- */
+  /* ---------------- FETCH USERS ---------------- */
+  useEffect(() => {
+    if (token) {
+      fetchPendingUsers();
+    }
+  }, [token]);
+
   const fetchPendingUsers = async () => {
-    const res = await axios.get(
-      "http://localhost:5000/api/admin/pending-users",
-      authHeader
-    );
-    setUsers(res.data);
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/admin/pending-users",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setUsers(res.data);
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
   };
 
-  /* ---------------- APPROVE (FUTURE BACKEND) ---------------- */
+  /* ---------------- APPROVE ---------------- */
   const approveUser = async (userId: string) => {
-    await axios.post(
-      `http://localhost:5000/api/admin/users/${userId}/approve`,
-      {},
-      authHeader
-    );
-    fetchPendingUsers();
+    try {
+      await axios.post(
+        `http://localhost:5000/api/admin/users/${userId}/approve`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchPendingUsers();
+    } catch (error) {
+      console.error("Approve error:", error);
+    }
   };
 
-  /* ---------------- REJECT (FUTURE BACKEND) ---------------- */
+  /* ---------------- REJECT ---------------- */
   const rejectUser = async (userId: string) => {
     if (!confirm("Reject this user?")) return;
 
-    await axios.post(
-      `http://localhost:5000/api/admin/users/${userId}/reject`,
-      {},
-      authHeader
-    );
-    fetchPendingUsers();
+    try {
+      await axios.post(
+        `http://localhost:5000/api/admin/users/${userId}/reject`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchPendingUsers();
+    } catch (error) {
+      console.error("Reject error:", error);
+    }
   };
 
   /* ---------------- SIGN OUT ---------------- */
@@ -89,21 +120,11 @@ export default function AdminDashboard() {
 
       {/* CONTENT */}
       <div className="px-10 py-8">
-        {/* STATS */}
         <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <StatCard
-            icon={Users}
-            label="Pending Users"
-            value={users.length}
-          />
-          <StatCard
-            icon={Shield}
-            label="Admin Actions Today"
-            value={users.length}
-          />
+          <StatCard icon={Users} label="Pending Users" value={users.length} />
+          <StatCard icon={Shield} label="Admin Actions Today" value={users.length} />
         </div>
 
-        {/* APPROVALS */}
         <div className="rounded-xl border bg-white">
           <div className="border-b px-6 py-4">
             <h2 className="text-base font-semibold text-slate-900">
@@ -119,36 +140,19 @@ export default function AdminDashboard() {
             <table className="w-full text-sm">
               <thead className="bg-slate-100 text-slate-800">
                 <tr>
-                  <th className="px-6 py-3 text-left font-semibold">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left font-semibold">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 text-right font-semibold">
-                    Actions
-                  </th>
+                  <th className="px-6 py-3 text-left font-semibold">Name</th>
+                  <th className="px-6 py-3 text-left font-semibold">Email</th>
+                  <th className="px-6 py-3 text-left font-semibold">Role</th>
+                  <th className="px-6 py-3 text-right font-semibold">Actions</th>
                 </tr>
               </thead>
 
               <tbody>
                 {users.map((user) => (
-                  <tr
-                    key={user._id}
-                    className="border-t hover:bg-slate-50"
-                  >
-                    <td className="px-6 py-4 text-slate-900 font-medium">
-                      {user.name}
-                    </td>
-                    <td className="px-6 py-4 text-slate-800">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 text-slate-800 capitalize">
-                      {user.role}
-                    </td>
+                  <tr key={user._id} className="border-t hover:bg-slate-50">
+                    <td className="px-6 py-4 font-medium">{user.name}</td>
+                    <td className="px-6 py-4">{user.email}</td>
+                    <td className="px-6 py-4 capitalize">{user.role}</td>
                     <td className="px-6 py-4">
                       <div className="flex justify-end gap-2">
                         <button
@@ -179,8 +183,6 @@ export default function AdminDashboard() {
   );
 }
 
-/* ---------------- COMPONENT ---------------- */
-
 function StatCard({
   icon: Icon,
   label,
@@ -198,9 +200,7 @@ function StatCard({
         </div>
         <div>
           <p className="text-sm text-slate-700">{label}</p>
-          <p className="text-2xl font-semibold text-slate-900">
-            {value}
-          </p>
+          <p className="text-2xl font-semibold text-slate-900">{value}</p>
         </div>
       </div>
     </div>

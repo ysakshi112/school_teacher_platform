@@ -1,5 +1,7 @@
 "use client";
 
+import API_BASE_URL from "../../../config/api";
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -36,7 +38,7 @@ export default function AdminDashboard() {
   const fetchPendingUsers = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/admin/pending-users",
+        `${API_BASE_URL}/api/admin/pending-users`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -53,7 +55,7 @@ export default function AdminDashboard() {
   const approveUser = async (userId: string) => {
     try {
       await axios.post(
-        `http://localhost:5000/api/admin/users/${userId}/approve`,
+        `${API_BASE_URL}/api/admin/users/${userId}/approve`,
         {},
         {
           headers: {
@@ -73,7 +75,7 @@ export default function AdminDashboard() {
 
     try {
       await axios.post(
-        `http://localhost:5000/api/admin/users/${userId}/reject`,
+        `${API_BASE_URL}/api/admin/users/${userId}/reject`,
         {},
         {
           headers: {

@@ -1,5 +1,6 @@
 "use client";
 
+import API_BASE_URL from "../../../config/api";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -51,7 +52,7 @@ export default function TeacherDashboard() {
   /* ------------------ FETCH DATA ------------------ */
   const fetchJobs = async () => {
     const { data } = await axios.get(
-      "http://localhost:5000/api/jobs/all",
+      `${API_BASE_URL}/api/jobs/all`,
       authHeader
     );
     setJobs(data);
@@ -59,7 +60,7 @@ export default function TeacherDashboard() {
 
   const fetchCredits = async () => {
     const { data } = await axios.get(
-      "http://localhost:5000/api/users/me",
+      `${API_BASE_URL}/api/users/me`,
       authHeader
     );
     setCredits(data.credits || 0);
@@ -67,7 +68,7 @@ export default function TeacherDashboard() {
 
   const fetchApplications = async () => {
     const { data } = await axios.get(
-      "http://localhost:5000/api/applications/teacher/applications",
+      `${API_BASE_URL}/api/applications/teacher/applications`,
       authHeader
     );
     setApplications(data);
@@ -83,7 +84,7 @@ export default function TeacherDashboard() {
   const applyJob = async (jobId: string) => {
     try {
       await axios.post(
-        "http://localhost:5000/api/applications/apply",
+        `${API_BASE_URL}/api/applications/apply`,
         { jobId },
         authHeader
       );
@@ -100,7 +101,7 @@ export default function TeacherDashboard() {
     await loadRazorpay();
 
     const { data } = await axios.post(
-      "http://localhost:5000/api/payments/create-order",
+      `${API_BASE_URL}/api/payments/create-order`,
       { credits: 5 },
       authHeader
     );
@@ -113,7 +114,7 @@ export default function TeacherDashboard() {
       name: "School–Teacher Platform",
       handler: async function (response: any) {
         await axios.post(
-          "http://localhost:5000/api/payments/verify",
+          `${API_BASE_URL}/api/payments/verify`,
           {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,

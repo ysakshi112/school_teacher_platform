@@ -1,5 +1,6 @@
 "use client";
 
+import API_BASE_URL from "../../../config/api";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import {
@@ -59,7 +60,7 @@ export default function SchoolDashboard() {
   const fetchJobs = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/jobs/school/me",
+        `${API_BASE_URL}/api/jobs/school/me`,
         authHeader
       );
       setJobs(res.data);

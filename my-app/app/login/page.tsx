@@ -1,4 +1,5 @@
 "use client";
+import API_BASE_URL from "../../config/api";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -84,7 +85,7 @@ export default function LoginPage() {
 
               try {
                 const res = await axios.post(
-                  "http://localhost:5000/api/auth/google",
+                  `${API_BASE_URL}/api/auth/google`,
                   {
                     token: credentialResponse.credential,
                     role,
@@ -94,12 +95,9 @@ export default function LoginPage() {
                 localStorage.setItem("token", res.data.token);
                 const user = res.data.user;
 
-                if (user.role === "superadmin")
-                  router.push("/admin/dashboard");
-                if (user.role === "school")
-                  router.push("/school/dashboard");
-                if (user.role === "teacher")
-                  router.push("/teacher/dashboard");
+                if (user.role === "superadmin") router.push("/admin/dashboard");
+                if (user.role === "school") router.push("/school/dashboard");
+                if (user.role === "teacher") router.push("/teacher/dashboard");
               } catch (err: any) {
                 if (err.response?.status === 403) {
                   alert(err.response.data.message);
@@ -152,19 +150,13 @@ function RoleOption({
             ${active ? "bg-slate-900" : "bg-slate-100"}`}
         >
           <Icon
-            className={`h-5 w-5 ${
-              active ? "text-white" : "text-slate-700"
-            }`}
+            className={`h-5 w-5 ${active ? "text-white" : "text-slate-700"}`}
           />
         </div>
 
         <div>
-          <p className="text-sm font-semibold text-slate-900">
-            {title}
-          </p>
-          <p className="text-xs text-slate-500">
-            {subtitle}
-          </p>
+          <p className="text-sm font-semibold text-slate-900">{title}</p>
+          <p className="text-xs text-slate-500">{subtitle}</p>
         </div>
       </div>
     </button>
